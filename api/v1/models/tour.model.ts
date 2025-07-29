@@ -5,6 +5,10 @@ mongoose.plugin(slug)
 const tourSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
+    tour_category_id: {
+      type: String,
+      default: '',
+    },
     code: { type: String, required: true, unique: true },
     images: [{ type: String }],
     price: { type: Number, required: true },

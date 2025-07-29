@@ -8,4 +8,6 @@ router.get('/', controller.index)
 
 router.get('/detail/:id', controller.detail)
 
+router.post('/create', controller.create)
+
 export const tourRoutes: Router = router

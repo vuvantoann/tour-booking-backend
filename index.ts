@@ -10,6 +10,7 @@ const app: Express = express()
 const port: string | number = process.env.PORT || 3000
 
 app.use(cors())
+app.use(express.json()) // Thêm dòng này
 routesV1(app)
 
 app.listen(port, () => {

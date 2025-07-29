@@ -15,3 +15,43 @@ export const detail = async (req: Request, res: Response) => {
   })
   res.json(tour)
 }
+
+// [POST]/api/v1/tours/create
+export const create = async (req: Request, res: Response) => {
+  try {
+    req.body.price = parseInt(req.body.price)
+    req.body.discountPercentage = parseInt(req.body.discountPercentage)
+    req.body.stock = parseInt(req.body.stock)
+
+    if (req.body.position === '') {
+      const countTour = await Tour.countDocuments()
+      req.body.position = countTour + 1
+    } else {
+      req.body.position = parseInt(req.body.position)
+    }
+
+    //  Kiểm tra trùng mã code
+    const existingTour = await Tour.findOne({ code: req.body.code })
+    if (existingTour) {
+      return res.status(400).json({
+        code: 400,
+        message: `Code "${req.body.code}" đã tồn tại!`,
+      })
+    }
+
+    const newTour = new Tour(req.body)
+    const data = await newTour.save()
+
+    return res.json({
+      code: 200,
+      message: 'Tạo sản phẩm thành công!',
+      data: data,
+    })
+  } catch (error) {
+    console.error('Lỗi khi tạo tour:', error)
+    return res.status(400).json({
+      code: 400,
+      message: 'Có lỗi xảy ra!',
+    })
+  }
+}

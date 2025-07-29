@@ -20,7 +20,7 @@ export const detail = async (req: Request, res: Response) => {
 export const create = async (req: Request, res: Response) => {
   try {
     req.body.price = parseInt(req.body.price)
-    req.body.discountPercentage = parseInt(req.body.discountPercentage)
+    req.body.discount = parseInt(req.body.discount)
     req.body.stock = parseInt(req.body.stock)
 
     if (req.body.position === '') {
@@ -52,6 +52,32 @@ export const create = async (req: Request, res: Response) => {
     return res.status(400).json({
       code: 400,
       message: 'Có lỗi xảy ra!',
+    })
+  }
+}
+
+//[PATCH]/api/v1/tours/edit/:id
+export const edit = async (req: Request, res: Response) => {
+  try {
+    const id: string = req.params.id
+    const numericFields = ['price', 'discount', 'stock', 'position']
+
+    numericFields.forEach((field) => {
+      if (req.body[field] !== undefined && req.body[field] !== '') {
+        req.body[field] = parseInt(req.body[field])
+      }
+    })
+
+    await Tour.updateOne({ _id: id }, req.body)
+    res.json({
+      code: 200,
+      message: 'chỉnh sửa sản phẩm thành công',
+    })
+  } catch (error) {
+    console.error('Lỗi changeStatus:', error)
+    return res.status(400).json({
+      code: 400,
+      message: 'Không tồn tại!',
     })
   }
 }

@@ -1,6 +1,5 @@
-const mongoose = require('mongoose')
-const slug = require('mongoose-slug-updater')
-
+import mongoose from 'mongoose'
+import slug from 'mongoose-slug-updater'
 mongoose.plugin(slug)
 
 const tourSchema = new mongoose.Schema(

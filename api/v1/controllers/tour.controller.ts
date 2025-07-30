@@ -81,3 +81,28 @@ export const edit = async (req: Request, res: Response) => {
     })
   }
 }
+
+//[delete]/api/v1/tours/delete/:id
+export const deleteTour = async (req: Request, res: Response) => {
+  try {
+    const id: string = req.params.id
+
+    await Tour.updateOne(
+      { _id: id },
+      {
+        deleted: true,
+        deletedAt: new Date(),
+      }
+    )
+    res.json({
+      code: 200,
+      message: 'xóa sảm phẩm thành công',
+    })
+  } catch (error) {
+    console.error('Lỗi changeStatus:', error)
+    return res.status(400).json({
+      code: 400,
+      message: 'Không tồn tại!',
+    })
+  }
+}

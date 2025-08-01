@@ -1,6 +1,6 @@
 import { Router } from 'express'
 
-import * as controller from '../controllers/tour.controller'
+import * as controller from '../../controllers/admin/tour.controller'
 
 const router: Router = Router()
 

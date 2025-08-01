@@ -1,12 +1,15 @@
 import { Request, Response } from 'express'
-import Tour from '../models/tour.model'
+import Tour from '../../models/tour.model'
 
+//[GET]/api/v1/admin/tours
 export const index = async (req: Request, res: Response) => {
   const tours = await Tour.find({
     deleted: false,
   })
   res.json(tours)
 }
+
+//[GET]/api/v1/admin/tours/detail
 export const detail = async (req: Request, res: Response) => {
   const id = req.params.id
   const tour = await Tour.findOne({
@@ -16,7 +19,7 @@ export const detail = async (req: Request, res: Response) => {
   res.json(tour)
 }
 
-// [POST]/api/v1/tours/create
+// [POST]/api/v1/admin/tours/create
 export const create = async (req: Request, res: Response) => {
   try {
     req.body.price = parseInt(req.body.price)
@@ -56,7 +59,7 @@ export const create = async (req: Request, res: Response) => {
   }
 }
 
-//[PATCH]/api/v1/tours/edit/:id
+//[PATCH]/api/v1/admin/tours/edit/:id
 export const edit = async (req: Request, res: Response) => {
   try {
     const id: string = req.params.id
@@ -82,7 +85,7 @@ export const edit = async (req: Request, res: Response) => {
   }
 }
 
-//[delete]/api/v1/tours/delete/:id
+//[delete]/api/v1/admin/tours/delete/:id
 export const deleteTour = async (req: Request, res: Response) => {
   try {
     const id: string = req.params.id

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import Post from '../models/post.model'
+import Post from '../../models/post.model'
 
 export const index = async (req: Request, res: Response) => {
   const posts = await Post.find({

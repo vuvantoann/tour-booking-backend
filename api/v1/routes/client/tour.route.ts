@@ -6,4 +6,6 @@ const router: Router = Router()
 
 router.get('/', controller.index)
 
+router.get('/:slugCategory', controller.ToursByCategory)
+
 export const tourRoutes: Router = router

@@ -8,4 +8,6 @@ router.get('/', controller.index)
 
 router.get('/:slugCategory', controller.ToursByCategory)
 
+router.get('/detail/:slugProduct', controller.detail)
+
 export const tourRoutes: Router = router

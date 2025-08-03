@@ -33,3 +33,24 @@ export const ToursByCategory = async (req: Request, res: Response) => {
     })
   }
 }
+
+//[GET]/api/v1/tours/detail/:slugProduct
+export const detail = async (req: Request, res: Response) => {
+  try {
+    const slugProduct: string = req.params.slugProduct
+    const tourDetail = await Tour.findOne({
+      slug: slugProduct,
+      deleted: false,
+    })
+
+    if (!tourDetail) return res.status(404).send('Không tìm thấy tour')
+
+    return res.json(tourDetail)
+  } catch (error) {
+    console.error('Lỗi :', error)
+    return res.status(400).json({
+      code: 400,
+      message: 'Không tồn tại!',
+    })
+  }
+}

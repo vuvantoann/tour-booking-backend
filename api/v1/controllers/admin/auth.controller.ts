@@ -52,3 +52,37 @@ export const login = async (req: Request, res: Response) => {
     })
   }
 }
+
+//[GET]/api/v1/auth/logout
+export const logout = async (req: Request, res: Response) => {
+  try {
+    res.clearCookie('token')
+    res.json({
+      code: 200,
+      message: 'Đăng xuất thành công',
+    })
+  } catch (error) {
+    console.error('Lỗi changeStatus:', error)
+    return res.status(400).json({
+      code: 400,
+      message: 'Không tồn tại!',
+    })
+  }
+}
+
+//[GET]/api/v1/auth/check
+export const check = async (req: Request, res: Response) => {
+  try {
+    res.json({
+      code: 200,
+      message: 'Đã đăng nhập',
+      user: req['user'],
+    })
+  } catch (error) {
+    console.error('Lỗi changeStatus:', error)
+    return res.status(400).json({
+      code: 400,
+      message: 'Không tồn tại!',
+    })
+  }
+}

@@ -37,5 +37,8 @@ exports.authRoutes = void 0;
 const express_1 = require("express");
 const router = (0, express_1.Router)();
 const controller = __importStar(require("../../controllers/admin/auth.controller"));
+const authMiddleware = __importStar(require("../../middlewares/auth.middleware"));
 router.post('/login', controller.login);
+router.get('/logout', authMiddleware.requireAuth, controller.logout);
+router.get('/check', authMiddleware.requireAuth, controller.check);
 exports.authRoutes = router;

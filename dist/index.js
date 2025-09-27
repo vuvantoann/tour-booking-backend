@@ -42,12 +42,17 @@ const database = __importStar(require("./config/database"));
 const cors_1 = __importDefault(require("cors"));
 const index_route_1 = __importDefault(require("./api/v1/routes/client/index.route"));
 const index_route_2 = __importDefault(require("./api/v1/routes/admin/index.route"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 dotenv_1.default.config();
 database.connect();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+}));
 app.use(express_1.default.json());
+app.use((0, cookie_parser_1.default)());
 (0, index_route_1.default)(app);
 (0, index_route_2.default)(app);
 app.listen(port, () => {

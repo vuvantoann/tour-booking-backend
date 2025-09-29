@@ -1,6 +1,11 @@
 import { Request, Response } from 'express'
 import Tour from '../../models/tour.model'
 
+// interface custom để có req.files
+interface MulterRequest extends Request {
+  files?: Express.Multer.File[]
+}
+
 //[GET]/api/v1/admin/tours
 export const index = async (req: Request, res: Response) => {
   const tours = await Tour.find({
@@ -23,17 +28,17 @@ export const detail = async (req: Request, res: Response) => {
 export const create = async (req: Request, res: Response) => {
   try {
     req.body.price = parseInt(req.body.price)
-    req.body.discount = parseInt(req.body.discount)
+    req.body.discount = parseInt(req.body.discount || '0')
     req.body.stock = parseInt(req.body.stock)
 
-    if (req.body.position === '') {
+    if (!req.body.position || req.body.position === '') {
       const countTour = await Tour.countDocuments()
       req.body.position = countTour + 1
     } else {
       req.body.position = parseInt(req.body.position)
     }
 
-    //  Kiểm tra trùng mã code
+    // Không cần xử lý ảnh nữa, vì req.body.images đã có URL Cloudinary
     const existingTour = await Tour.findOne({ code: req.body.code })
     if (existingTour) {
       return res.status(400).json({
@@ -59,25 +64,39 @@ export const create = async (req: Request, res: Response) => {
   }
 }
 
-//[PATCH]/api/v1/admin/tours/edit/:id
-export const edit = async (req: Request, res: Response) => {
+// [PATCH]/api/v1/admin/tours/edit/:id
+export const edit = async (req: MulterRequest, res: Response) => {
   try {
     const id: string = req.params.id
-    const numericFields = ['price', 'discount', 'stock', 'position']
 
+    // ép kiểu số cho các field numeric
+    const numericFields = ['price', 'discount', 'stock', 'position']
     numericFields.forEach((field) => {
       if (req.body[field] !== undefined && req.body[field] !== '') {
         req.body[field] = parseInt(req.body[field])
       }
     })
 
+    // xử lý ảnh mới upload (nếu có)
+    const files = req.files || []
+    const newImages = files.map((f) => `/uploads/${f.filename}`)
+
+    if (newImages.length > 0) {
+      // nếu có ảnh mới thì ghi đè toàn bộ ảnh cũ
+      req.body.images = newImages
+    } else {
+      // nếu không có ảnh mới thì xóa field images khỏi update
+      delete req.body.images
+    }
+
     await Tour.updateOne({ _id: id }, req.body)
+
     res.json({
       code: 200,
-      message: 'chỉnh sửa sản phẩm thành công',
+      message: 'Chỉnh sửa sản phẩm thành công',
     })
   } catch (error) {
-    console.error('Lỗi changeStatus:', error)
+    console.error('Lỗi edit tour:', error)
     return res.status(400).json({
       code: 400,
       message: 'Không tồn tại!',

@@ -35,11 +35,12 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tourRoutes = void 0;
 const express_1 = require("express");
+const uploadCloud_middleware_1 = require("../../middlewares/uploadCloud.middleware");
 const controller = __importStar(require("../../controllers/admin/tour.controller"));
 const router = (0, express_1.Router)();
 router.get('/', controller.index);
 router.get('/detail/:id', controller.detail);
-router.post('/create', controller.create);
+router.post('/create', uploadCloud_middleware_1.upload.array('images', 10), uploadCloud_middleware_1.uploadToCloudinary, controller.create);
 router.patch('/edit/:id', controller.edit);
 router.delete('/delete/:id', controller.deleteTour);
 exports.tourRoutes = router;

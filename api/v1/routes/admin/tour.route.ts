@@ -1,4 +1,8 @@
 import { Router } from 'express'
+import {
+  upload,
+  uploadToCloudinary,
+} from '../../middlewares/uploadCloud.middleware'
 
 import * as controller from '../../controllers/admin/tour.controller'
 
@@ -8,7 +12,12 @@ router.get('/', controller.index)
 
 router.get('/detail/:id', controller.detail)
 
-router.post('/create', controller.create)
+router.post(
+  '/create',
+  upload.array('images', 10),
+  uploadToCloudinary,
+  controller.create
+)
 
 router.patch('/edit/:id', controller.edit)
 

@@ -33,9 +33,9 @@ exports.detail = detail;
 const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         req.body.price = parseInt(req.body.price);
-        req.body.discount = parseInt(req.body.discount);
+        req.body.discount = parseInt(req.body.discount || '0');
         req.body.stock = parseInt(req.body.stock);
-        if (req.body.position === '') {
+        if (!req.body.position || req.body.position === '') {
             const countTour = yield tour_model_1.default.countDocuments();
             req.body.position = countTour + 1;
         }
@@ -75,14 +75,22 @@ const edit = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 req.body[field] = parseInt(req.body[field]);
             }
         });
+        const files = req.files || [];
+        const newImages = files.map((f) => `/uploads/${f.filename}`);
+        if (newImages.length > 0) {
+            req.body.images = newImages;
+        }
+        else {
+            delete req.body.images;
+        }
         yield tour_model_1.default.updateOne({ _id: id }, req.body);
         res.json({
             code: 200,
-            message: 'chỉnh sửa sản phẩm thành công',
+            message: 'Chỉnh sửa sản phẩm thành công',
         });
     }
     catch (error) {
-        console.error('Lỗi changeStatus:', error);
+        console.error('Lỗi edit tour:', error);
         return res.status(400).json({
             code: 400,
             message: 'Không tồn tại!',

@@ -14,9 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.uploadToCloudinary = exports.upload = void 0;
 const multer_1 = __importDefault(require("multer"));
-const cloudinary_1 = __importDefault(require("cloudinary"));
+const cloudinary_1 = require("cloudinary");
 const streamifier_1 = __importDefault(require("streamifier"));
-cloudinary_1.default.v2.config({
+const sharp_1 = __importDefault(require("sharp"));
+cloudinary_1.v2.config({
     cloud_name: process.env.CLOUD_NAME,
     api_key: process.env.API_KEY,
     api_secret: process.env.API_SECRET,
@@ -24,24 +25,27 @@ cloudinary_1.default.v2.config({
 const storage = multer_1.default.memoryStorage();
 exports.upload = (0, multer_1.default)({ storage });
 const uploadToCloudinary = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!req.files || !(req.files instanceof Array)) {
-        next();
-        return;
-    }
     try {
-        const urls = [];
-        for (const file of req.files) {
-            const result = yield new Promise((resolve, reject) => {
-                const stream = cloudinary_1.default.v2.uploader.upload_stream({ folder: 'tours' }, (error, result) => {
-                    if (result)
-                        resolve(result);
-                    else
-                        reject(error);
-                });
-                streamifier_1.default.createReadStream(file.buffer).pipe(stream);
-            });
-            urls.push(result.secure_url);
+        const files = req.files;
+        if (!files || files.length === 0) {
+            return next();
         }
+        const uploadPromises = files.map((file) => __awaiter(void 0, void 0, void 0, function* () {
+            const resizedBuffer = yield (0, sharp_1.default)(file.buffer)
+                .resize({ width: 800, height: 600 })
+                .toBuffer();
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary_1.v2.uploader.upload_stream({ folder: 'tours', resource_type: 'auto' }, (err, result) => {
+                    if (err)
+                        return reject(err);
+                    if (!result)
+                        return reject(new Error('Cloudinary upload result undefined'));
+                    resolve(result.secure_url);
+                });
+                streamifier_1.default.createReadStream(resizedBuffer).pipe(stream);
+            });
+        }));
+        const urls = yield Promise.all(uploadPromises);
         req.body.images = urls;
         next();
     }

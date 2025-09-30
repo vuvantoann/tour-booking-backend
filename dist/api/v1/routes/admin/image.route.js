@@ -33,16 +33,10 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-const tour_route_1 = require("./tour.route");
-const category_route_1 = require("./category.route");
-const auth_route_1 = require("./auth.route");
-const authMiddleware = __importStar(require("../../middlewares/auth.middleware"));
-const image_route_1 = require("./image.route");
-const routesV1Admin = (app) => {
-    const version = '/api/v1/admin';
-    app.use(version + '/tours', authMiddleware.requireAuth, tour_route_1.tourRoutes);
-    app.use(version + '/categories', authMiddleware.requireAuth, category_route_1.categoryRoutes);
-    app.use(version + '/auth', auth_route_1.authRoutes);
-    app.use(version + '/images', authMiddleware.requireAuth, image_route_1.uploadImageRoutes);
-};
-exports.default = routesV1Admin;
+exports.uploadImageRoutes = void 0;
+const express_1 = require("express");
+const uploadCloud_middleware_1 = require("../../middlewares/uploadCloud.middleware");
+const router = (0, express_1.Router)();
+const controller = __importStar(require("../../controllers/admin/image.controller"));
+router.post('/upload', uploadCloud_middleware_1.upload.array('images', 10), uploadCloud_middleware_1.uploadToCloudinary, controller.upload);
+exports.uploadImageRoutes = router;

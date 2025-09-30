@@ -68,6 +68,6 @@ export const uploadToCloudinary = async (
     next()
   } catch (err) {
     console.error('Upload lỗi:', err)
-    res.status(500).json({ code: 500, message: 'Upload ảnh thất bại' })
+    return res.status(500).json({ code: 500, message: 'Upload ảnh thất bại' })
   }
 }

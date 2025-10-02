@@ -6,6 +6,8 @@ const router: Router = Router()
 
 router.get('/', controller.index)
 
-router.get('/detail/:id', controller.detail)
+router.get('/:slugTopic', controller.postsByTopic)
+
+router.get('/detail/:slugPost', controller.detail)
 
 export const postRoutes: Router = router

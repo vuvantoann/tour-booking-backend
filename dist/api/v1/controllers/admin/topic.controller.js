@@ -12,15 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.detail = exports.postsByTopic = exports.index = void 0;
-const post_model_1 = __importDefault(require("../../models/post.model"));
+exports.detail = exports.index = void 0;
 const topic_model_1 = __importDefault(require("../../models/topic.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const posts = yield post_model_1.default.find({
+        const topics = yield topic_model_1.default.find({
             deleted: false,
         });
-        res.json(posts);
+        res.json(topics);
     }
     catch (error) {
         console.error(error);
@@ -28,45 +27,21 @@ const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.index = index;
-const postsByTopic = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const slugTopic = req.params.slugTopic;
-        const topic = yield topic_model_1.default.findOne({
-            slug: slugTopic,
-            deleted: false,
-        });
-        const posts = yield post_model_1.default.find({
-            topic_id: topic._id,
-            deleted: false,
-        });
-        return res.json(posts);
-    }
-    catch (error) {
-        console.error('Lỗi :', error);
-        return res.status(400).json({
-            code: 400,
-            message: 'Không tồn tại!',
-        });
-    }
-});
-exports.postsByTopic = postsByTopic;
 const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const slugPost = req.params.slugPost;
-        const PostDetail = yield post_model_1.default.findOne({
-            slug: slugPost,
+        const id = req.params.id;
+        const topic = yield topic_model_1.default.findOne({
+            _id: id,
             deleted: false,
         });
-        if (!PostDetail)
-            return res.status(404).send('Không tìm thấy bài đăng');
-        return res.json(PostDetail);
+        if (!topic) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+        res.json(topic);
     }
     catch (error) {
-        console.error('Lỗi :', error);
-        return res.status(400).json({
-            code: 400,
-            message: 'Không tồn tại!',
-        });
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 exports.detail = detail;

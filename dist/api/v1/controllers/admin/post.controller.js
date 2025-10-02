@@ -12,9 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.detail = exports.postsByTopic = exports.index = void 0;
+exports.create = exports.detail = exports.index = void 0;
 const post_model_1 = __importDefault(require("../../models/post.model"));
-const topic_model_1 = __importDefault(require("../../models/topic.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const posts = yield post_model_1.default.find({
@@ -28,45 +27,47 @@ const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.index = index;
-const postsByTopic = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const slugTopic = req.params.slugTopic;
-        const topic = yield topic_model_1.default.findOne({
-            slug: slugTopic,
-            deleted: false,
-        });
-        const posts = yield post_model_1.default.find({
-            topic_id: topic._id,
-            deleted: false,
-        });
-        return res.json(posts);
-    }
-    catch (error) {
-        console.error('Lỗi :', error);
-        return res.status(400).json({
-            code: 400,
-            message: 'Không tồn tại!',
-        });
-    }
-});
-exports.postsByTopic = postsByTopic;
 const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const slugPost = req.params.slugPost;
-        const PostDetail = yield post_model_1.default.findOne({
-            slug: slugPost,
+        const id = req.params.id;
+        const post = yield post_model_1.default.findOne({
+            _id: id,
             deleted: false,
         });
-        if (!PostDetail)
-            return res.status(404).send('Không tìm thấy bài đăng');
-        return res.json(PostDetail);
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+        res.json(post);
     }
     catch (error) {
-        console.error('Lỗi :', error);
-        return res.status(400).json({
-            code: 400,
-            message: 'Không tồn tại!',
-        });
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 exports.detail = detail;
+const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!req.body.position || req.body.position === '') {
+            const countPost = yield post_model_1.default.countDocuments();
+            req.body.position = countPost + 1;
+        }
+        else {
+            req.body.position = parseInt(req.body.position);
+        }
+        const newPost = new post_model_1.default(req.body);
+        const data = yield newPost.save();
+        return res.json({
+            code: 200,
+            message: 'Tạo bài viết thành công!',
+            data: data,
+        });
+    }
+    catch (error) {
+        console.error('Lỗi khi tạo bài viết:', error);
+        return res.status(400).json({
+            code: 400,
+            message: 'Có lỗi xảy ra!',
+        });
+    }
+});
+exports.create = create;

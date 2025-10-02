@@ -8,22 +8,30 @@ const mongoose_slug_updater_1 = __importDefault(require("mongoose-slug-updater")
 mongoose_1.default.plugin(mongoose_slug_updater_1.default);
 const postSchema = new mongoose_1.default.Schema({
     title: { type: String, required: true },
-    body: { type: String, required: true },
-    tags: [{ type: String }],
-    reactions: {
-        likes: { type: Number, default: 0 },
-        dislikes: { type: Number, default: 0 },
+    slug: { type: String, slug: 'title', unique: true, slugPaddingSize: 4 },
+    excerpt: { type: String },
+    content: { type: String, required: true },
+    images: [{ type: String }],
+    topic_id: { type: String, default: '' },
+    author_id: { type: String },
+    status: { type: String, default: 'draft' },
+    publishedAt: { type: Date },
+    position: { type: Number },
+    createdBy: {
+        account_id: String,
+        createdAt: { type: Date, default: Date.now },
     },
-    views: { type: Number, default: 0 },
-    userId: { type: Number, required: true },
-    news: { type: Boolean, default: false },
-    related: [{ type: String }],
-    slug: { type: String, required: true, unique: true },
-    deleted: {
-        type: Boolean,
-        default: false,
+    updatedBy: [
+        {
+            account_id: String,
+            updatedAt: Date,
+        },
+    ],
+    deletedBy: {
+        account_id: String,
+        deletedAt: Date,
     },
-    deletedAt: { type: Date },
+    deleted: { type: Boolean, default: false },
 }, {
     timestamps: true,
 });

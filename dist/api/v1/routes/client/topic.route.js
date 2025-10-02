@@ -33,20 +33,10 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-const tour_route_1 = require("./tour.route");
-const category_route_1 = require("./category.route");
-const auth_route_1 = require("./auth.route");
-const authMiddleware = __importStar(require("../../middlewares/auth.middleware"));
-const image_route_1 = require("./image.route");
-const topic_route_1 = require("./topic.route");
-const post_route_1 = require("./post.route");
-const routesV1Admin = (app) => {
-    const version = '/api/v1/admin';
-    app.use(version + '/tours', authMiddleware.requireAuth, tour_route_1.tourRoutes);
-    app.use(version + '/categories', authMiddleware.requireAuth, category_route_1.categoryRoutes);
-    app.use(version + '/auth', auth_route_1.authRoutes);
-    app.use(version + '/images', authMiddleware.requireAuth, image_route_1.uploadImageRoutes);
-    app.use(version + '/topics', authMiddleware.requireAuth, topic_route_1.topicRoutes);
-    app.use(version + '/posts', authMiddleware.requireAuth, post_route_1.postRoutes);
-};
-exports.default = routesV1Admin;
+exports.topicRoutes = void 0;
+const express_1 = require("express");
+const controller = __importStar(require("../../controllers/client/topic.controller"));
+const router = (0, express_1.Router)();
+router.get('/', controller.index);
+router.get('/detail/:id', controller.detail);
+exports.topicRoutes = router;

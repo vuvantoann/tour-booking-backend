@@ -38,5 +38,6 @@ const express_1 = require("express");
 const controller = __importStar(require("../../controllers/client/post.controller"));
 const router = (0, express_1.Router)();
 router.get('/', controller.index);
-router.get('/detail/:id', controller.detail);
+router.get('/:slugTopic', controller.postsByTopic);
+router.get('/detail/:slugPost', controller.detail);
 exports.postRoutes = router;

@@ -4,6 +4,8 @@ import { categoryRoutes } from './category.route'
 import { authRoutes } from './auth.route'
 import * as authMiddleware from '../../middlewares/auth.middleware'
 import { uploadImageRoutes } from './image.route'
+import { topicRoutes } from './topic.route'
+import { postRoutes } from './post.route'
 
 const routesV1Admin = (app: Express) => {
   const version = '/api/v1/admin'
@@ -15,6 +17,10 @@ const routesV1Admin = (app: Express) => {
   app.use(version + '/auth', authRoutes)
 
   app.use(version + '/images', authMiddleware.requireAuth, uploadImageRoutes)
+
+  app.use(version + '/topics', authMiddleware.requireAuth, topicRoutes)
+
+  app.use(version + '/posts', authMiddleware.requireAuth, postRoutes)
 }
 
 export default routesV1Admin

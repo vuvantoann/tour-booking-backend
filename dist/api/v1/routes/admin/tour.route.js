@@ -41,6 +41,6 @@ const router = (0, express_1.Router)();
 router.get('/', controller.index);
 router.get('/detail/:id', controller.detail);
 router.post('/create', uploadCloud_middleware_1.upload.array('images', 10), uploadCloud_middleware_1.uploadToCloudinary, controller.create);
-router.patch('/edit/:id', controller.edit);
+router.patch('/edit/:id', uploadCloud_middleware_1.upload.array('images', 10), uploadCloud_middleware_1.uploadToCloudinary, controller.edit);
 router.delete('/delete/:id', controller.deleteTour);
 exports.tourRoutes = router;

@@ -19,7 +19,12 @@ router.post(
   controller.create
 )
 
-router.patch('/edit/:id', controller.edit)
+router.patch(
+  '/edit/:id',
+  upload.array('images', 10),
+  uploadToCloudinary,
+  controller.edit
+)
 
 router.delete('/delete/:id', controller.deleteTour)
 

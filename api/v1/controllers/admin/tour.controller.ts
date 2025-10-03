@@ -6,22 +6,41 @@ interface MulterRequest extends Request {
   files?: Express.Multer.File[]
 }
 
-//[GET]/api/v1/admin/tours
+// [GET]/api/v1/admin/tours
 export const index = async (req: Request, res: Response) => {
-  const tours = await Tour.find({
-    deleted: false,
-  })
-  res.json(tours)
+  try {
+    const tours = await Tour.find({
+      deleted: false,
+    })
+    return res.status(200).json(tours)
+  } catch (error) {
+    return res.status(400).json({
+      message: 'Lỗi khi lấy danh sách tours',
+      error: error instanceof Error ? error.message : error,
+    })
+  }
 }
 
-//[GET]/api/v1/admin/tours/detail
+// [GET]/api/v1/admin/tours/detail/:id
 export const detail = async (req: Request, res: Response) => {
-  const id = req.params.id
-  const tour = await Tour.findOne({
-    _id: id,
-    deleted: false,
-  })
-  res.json(tour)
+  try {
+    const id = req.params.id
+    const tour = await Tour.findOne({
+      _id: id,
+      deleted: false,
+    })
+
+    if (!tour) {
+      return res.status(404).json({ message: 'Tour không tồn tại' })
+    }
+
+    return res.status(200).json(tour)
+  } catch (error) {
+    return res.status(400).json({
+      message: 'Lỗi khi lấy chi tiết tour',
+      error: error instanceof Error ? error.message : error,
+    })
+  }
 }
 
 // [POST]/api/v1/admin/tours/create
@@ -76,18 +95,6 @@ export const edit = async (req: MulterRequest, res: Response) => {
         req.body[field] = parseInt(req.body[field])
       }
     })
-
-    // xử lý ảnh mới upload (nếu có)
-    const files = req.files || []
-    const newImages = files.map((f) => `/uploads/${f.filename}`)
-
-    if (newImages.length > 0) {
-      // nếu có ảnh mới thì ghi đè toàn bộ ảnh cũ
-      req.body.images = newImages
-    } else {
-      // nếu không có ảnh mới thì xóa field images khỏi update
-      delete req.body.images
-    }
 
     await Tour.updateOne({ _id: id }, req.body)
 

@@ -15,19 +15,38 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteTour = exports.edit = exports.create = exports.detail = exports.index = void 0;
 const tour_model_1 = __importDefault(require("../../models/tour.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const tours = yield tour_model_1.default.find({
-        deleted: false,
-    });
-    res.json(tours);
+    try {
+        const tours = yield tour_model_1.default.find({
+            deleted: false,
+        });
+        return res.status(200).json(tours);
+    }
+    catch (error) {
+        return res.status(400).json({
+            message: 'Lỗi khi lấy danh sách tours',
+            error: error instanceof Error ? error.message : error,
+        });
+    }
 });
 exports.index = index;
 const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const tour = yield tour_model_1.default.findOne({
-        _id: id,
-        deleted: false,
-    });
-    res.json(tour);
+    try {
+        const id = req.params.id;
+        const tour = yield tour_model_1.default.findOne({
+            _id: id,
+            deleted: false,
+        });
+        if (!tour) {
+            return res.status(404).json({ message: 'Tour không tồn tại' });
+        }
+        return res.status(200).json(tour);
+    }
+    catch (error) {
+        return res.status(400).json({
+            message: 'Lỗi khi lấy chi tiết tour',
+            error: error instanceof Error ? error.message : error,
+        });
+    }
 });
 exports.detail = detail;
 const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -75,14 +94,6 @@ const edit = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 req.body[field] = parseInt(req.body[field]);
             }
         });
-        const files = req.files || [];
-        const newImages = files.map((f) => `/uploads/${f.filename}`);
-        if (newImages.length > 0) {
-            req.body.images = newImages;
-        }
-        else {
-            delete req.body.images;
-        }
         yield tour_model_1.default.updateOne({ _id: id }, req.body);
         res.json({
             code: 200,

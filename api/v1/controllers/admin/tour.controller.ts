@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import Tour from '../../models/tour.model'
+import searchHelper from '../../helper/search'
 
 // interface custom để có req.files
 interface MulterRequest extends Request {
@@ -9,9 +10,24 @@ interface MulterRequest extends Request {
 // [GET]/api/v1/admin/tours
 export const index = async (req: Request, res: Response) => {
   try {
-    const tours = await Tour.find({
+    interface Find {
+      deleted: boolean
+      status?: string
+      title?: RegExp
+    }
+
+    const find: Find = {
       deleted: false,
-    })
+    }
+
+    // Tính năng tìm kiếm
+    const objectSearch = searchHelper(req.query)
+    if (objectSearch.regex) {
+      find.title = objectSearch.regex
+    }
+    // kết thúc Tính năng tìm kiếm
+
+    const tours = await Tour.find(find)
     return res.status(200).json(tours)
   } catch (error) {
     return res.status(400).json({

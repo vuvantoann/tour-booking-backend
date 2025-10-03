@@ -14,11 +14,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteTour = exports.edit = exports.create = exports.detail = exports.index = void 0;
 const tour_model_1 = __importDefault(require("../../models/tour.model"));
+const search_1 = __importDefault(require("../../helper/search"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const tours = yield tour_model_1.default.find({
+        const find = {
             deleted: false,
-        });
+        };
+        const objectSearch = (0, search_1.default)(req.query);
+        if (objectSearch.regex) {
+            find.title = objectSearch.regex;
+        }
+        const tours = yield tour_model_1.default.find(find);
         return res.status(200).json(tours);
     }
     catch (error) {

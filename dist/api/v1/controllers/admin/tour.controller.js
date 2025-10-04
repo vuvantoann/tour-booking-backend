@@ -15,16 +15,36 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteTour = exports.edit = exports.create = exports.detail = exports.index = void 0;
 const tour_model_1 = __importDefault(require("../../models/tour.model"));
 const search_1 = __importDefault(require("../../helper/search"));
+const category_model_1 = __importDefault(require("../../models/category.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const find = {
             deleted: false,
         };
+        if (req.query.status) {
+            find.status = req.query.status.toString();
+        }
+        const slugCategory = (_a = req.query.slugCategory) === null || _a === void 0 ? void 0 : _a.toString();
+        if (slugCategory) {
+            const category = yield category_model_1.default.findOne({
+                slug: slugCategory,
+                deleted: false,
+            });
+            if (category) {
+                find.tour_category_id = category._id;
+            }
+        }
+        let sort = {};
+        if (req.query.sortKey && req.query.sortValue) {
+            const sortKey = req.query.sortKey.toString();
+            sort[sortKey] = req.query.sortValue;
+        }
         const objectSearch = (0, search_1.default)(req.query);
         if (objectSearch.regex) {
             find.title = objectSearch.regex;
         }
-        const tours = yield tour_model_1.default.find(find);
+        const tours = yield tour_model_1.default.find(find).sort(sort);
         return res.status(200).json(tours);
     }
     catch (error) {

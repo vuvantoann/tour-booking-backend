@@ -1,6 +1,8 @@
 import { Request, Response } from 'express'
 import Tour from '../../models/tour.model'
 import searchHelper from '../../helper/search'
+import Category from '../../models/category.model'
+import mongoose from 'mongoose'
 
 // interface custom để có req.files
 interface MulterRequest extends Request {
@@ -14,11 +16,41 @@ export const index = async (req: Request, res: Response) => {
       deleted: boolean
       status?: string
       title?: RegExp
+      tour_category_id?: string | mongoose.Types.ObjectId
     }
 
     const find: Find = {
       deleted: false,
     }
+
+    //Tính năng lọc theo trạng thái
+    if (req.query.status) {
+      find.status = req.query.status.toString()
+    }
+    // kết thúc tính năng lọc theo trạng thái
+
+    // Tính năng lọc theo danh mục sản phẩm
+
+    const slugCategory = req.query.slugCategory?.toString()
+    if (slugCategory) {
+      const category = await Category.findOne({
+        slug: slugCategory,
+        deleted: false,
+      })
+      if (category) {
+        find.tour_category_id = category._id
+      }
+    }
+
+    // Kết thúc
+
+    // Tính sắp xếp theo tiêu chí
+    let sort = {}
+    if (req.query.sortKey && req.query.sortValue) {
+      const sortKey = req.query.sortKey.toString()
+      sort[sortKey] = req.query.sortValue
+    }
+    // kết thúc tính năng sắp xếp theo tiêu chí
 
     // Tính năng tìm kiếm
     const objectSearch = searchHelper(req.query)
@@ -27,7 +59,7 @@ export const index = async (req: Request, res: Response) => {
     }
     // kết thúc Tính năng tìm kiếm
 
-    const tours = await Tour.find(find)
+    const tours = await Tour.find(find).sort(sort)
     return res.status(200).json(tours)
   } catch (error) {
     return res.status(400).json({

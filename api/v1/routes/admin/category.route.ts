@@ -25,4 +25,7 @@ router.patch(
   uploadToCloudinary,
   controller.edit
 )
+
+router.delete('/delete/:id', controller.deleteCategory)
+
 export const categoryRoutes: Router = router

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.edit = exports.create = exports.detail = exports.index = void 0;
+exports.deletePost = exports.edit = exports.create = exports.detail = exports.index = void 0;
 const post_model_1 = __importDefault(require("../../models/post.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -97,3 +97,24 @@ const edit = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.edit = edit;
+const deletePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const id = req.params.id;
+        yield post_model_1.default.updateOne({ _id: id }, {
+            deleted: true,
+            deletedAt: new Date(),
+        });
+        res.json({
+            code: 200,
+            message: 'xóa bài viết thành công',
+        });
+    }
+    catch (error) {
+        console.error('Lỗi changeStatus:', error);
+        return res.status(400).json({
+            code: 400,
+            message: 'Không tồn tại!',
+        });
+    }
+});
+exports.deletePost = deletePost;

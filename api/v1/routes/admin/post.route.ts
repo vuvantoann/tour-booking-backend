@@ -25,4 +25,6 @@ router.patch(
   controller.edit
 )
 
+router.delete('/delete/:id', controller.deletePost)
+
 export const postRoutes: Router = router

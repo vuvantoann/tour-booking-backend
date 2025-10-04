@@ -1,6 +1,12 @@
 import { Request, Response } from 'express'
 import Category from '../../models/category.model'
 
+// interface custom để có req.files
+interface MulterRequest extends Request {
+  files?: Express.Multer.File[]
+}
+
+// [GET]/api/v1/admin/categories
 export const index = async (req: Request, res: Response) => {
   try {
     const categories = await Category.find({ deleted: false })
@@ -11,6 +17,7 @@ export const index = async (req: Request, res: Response) => {
   }
 }
 
+// [GET]/api/v1/admin/categories/detail/:id
 export const detail = async (req: Request, res: Response) => {
   try {
     const id = req.params.id
@@ -24,5 +31,42 @@ export const detail = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching category detail:', error)
     res.status(500).json({ message: 'Internal Server Error' })
+  }
+}
+
+// [POST]/api/v1/admin/categories/create
+export const create = async (req: Request, res: Response) => {
+  try {
+    let position: number
+    if (
+      req.body.position === undefined ||
+      req.body.position === null ||
+      req.body.position === ''
+    ) {
+      const countCategory = await Category.countDocuments()
+      position = countCategory + 1
+    } else {
+      position = Number(req.body.position)
+      if (isNaN(position)) {
+        position = (await Category.countDocuments()) + 1
+      }
+    }
+
+    req.body.position = position // đảm bảo là Number
+
+    const newCategory = new Category(req.body)
+    const data = await newCategory.save()
+
+    return res.json({
+      code: 200,
+      message: 'Tạo sản phẩm thành công!',
+      data: data,
+    })
+  } catch (error) {
+    console.error('Lỗi khi tạo category:', error)
+    return res.status(400).json({
+      code: 400,
+      message: 'Có lỗi xảy ra!',
+    })
   }
 }

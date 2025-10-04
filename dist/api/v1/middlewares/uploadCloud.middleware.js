@@ -26,7 +26,8 @@ const storage = multer_1.default.memoryStorage();
 exports.upload = (0, multer_1.default)({ storage });
 const uploadToCloudinary = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const files = req.files;
+        const files = req.files ||
+            (req.file ? [req.file] : []);
         if (!files || files.length === 0) {
             return next();
         }
@@ -46,7 +47,12 @@ const uploadToCloudinary = (req, res, next) => __awaiter(void 0, void 0, void 0,
             });
         }));
         const urls = yield Promise.all(uploadPromises);
-        req.body.images = urls;
+        if (urls.length === 1) {
+            req.body.image = urls[0];
+        }
+        else {
+            req.body.images = urls;
+        }
         next();
     }
     catch (err) {

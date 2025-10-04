@@ -24,14 +24,18 @@ interface CloudinaryFile extends Express.Multer.File {
   buffer: Buffer
 }
 
-// Middleware upload + resize + Cloudinary
+// Middleware upload + resize + Cloudinary (hỗ trợ 1 file hoặc nhiều file)
 export const uploadToCloudinary = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const files = req.files as CloudinaryFile[]
+    // Hỗ trợ cả single file (req.file) và multiple files (req.files)
+    const files: CloudinaryFile[] =
+      (req.files as CloudinaryFile[]) ||
+      (req.file ? [req.file as CloudinaryFile] : [])
+
     if (!files || files.length === 0) {
       return next() // Không có file, tiếp tục controller
     }
@@ -63,8 +67,13 @@ export const uploadToCloudinary = async (
     // Chờ tất cả file upload xong
     const urls = await Promise.all(uploadPromises)
 
-    // Gắn vào body để controller xử lý
-    req.body.images = urls
+    // Nếu chỉ 1 file → req.body.image, nếu nhiều file → req.body.images
+    if (urls.length === 1) {
+      req.body.image = urls[0]
+    } else {
+      req.body.images = urls
+    }
+
     next()
   } catch (err) {
     console.error('Upload lỗi:', err)

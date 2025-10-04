@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.detail = exports.index = void 0;
+exports.create = exports.detail = exports.index = void 0;
 const category_model_1 = __importDefault(require("../../models/category.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -40,3 +40,36 @@ const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.detail = detail;
+const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let position;
+        if (req.body.position === undefined ||
+            req.body.position === null ||
+            req.body.position === '') {
+            const countCategory = yield category_model_1.default.countDocuments();
+            position = countCategory + 1;
+        }
+        else {
+            position = Number(req.body.position);
+            if (isNaN(position)) {
+                position = (yield category_model_1.default.countDocuments()) + 1;
+            }
+        }
+        req.body.position = position;
+        const newCategory = new category_model_1.default(req.body);
+        const data = yield newCategory.save();
+        return res.json({
+            code: 200,
+            message: 'Tạo sản phẩm thành công!',
+            data: data,
+        });
+    }
+    catch (error) {
+        console.error('Lỗi khi tạo category:', error);
+        return res.status(400).json({
+            code: 400,
+            message: 'Có lỗi xảy ra!',
+        });
+    }
+});
+exports.create = create;

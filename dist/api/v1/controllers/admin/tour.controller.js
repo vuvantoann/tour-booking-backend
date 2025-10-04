@@ -80,13 +80,18 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         req.body.price = parseInt(req.body.price);
         req.body.discount = parseInt(req.body.discount || '0');
         req.body.stock = parseInt(req.body.stock);
-        if (!req.body.position || req.body.position === '') {
+        let position;
+        if (req.body.position === null || req.body.position === undefined) {
             const countTour = yield tour_model_1.default.countDocuments();
-            req.body.position = countTour + 1;
+            position = countTour + 1;
         }
         else {
-            req.body.position = parseInt(req.body.position);
+            position = Number(req.body.position);
+            if (isNaN(position)) {
+                position = (yield tour_model_1.default.countDocuments()) + 1;
+            }
         }
+        req.body.position = position;
         const existingTour = yield tour_model_1.default.findOne({ code: req.body.code });
         if (existingTour) {
             return res.status(400).json({

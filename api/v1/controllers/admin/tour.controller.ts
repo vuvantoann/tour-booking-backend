@@ -98,12 +98,17 @@ export const create = async (req: Request, res: Response) => {
     req.body.discount = parseInt(req.body.discount || '0')
     req.body.stock = parseInt(req.body.stock)
 
-    if (!req.body.position || req.body.position === '') {
+    let position: number
+    if (req.body.position === null || req.body.position === undefined) {
       const countTour = await Tour.countDocuments()
-      req.body.position = countTour + 1
+      position = countTour + 1
     } else {
-      req.body.position = parseInt(req.body.position)
+      position = Number(req.body.position)
+      if (isNaN(position)) {
+        position = (await Tour.countDocuments()) + 1
+      }
     }
+    req.body.position = position
 
     // Không cần xử lý ảnh nữa, vì req.body.images đã có URL Cloudinary
     const existingTour = await Tour.findOne({ code: req.body.code })

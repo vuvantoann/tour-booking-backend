@@ -14,11 +14,37 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deletePost = exports.edit = exports.create = exports.detail = exports.index = void 0;
 const post_model_1 = __importDefault(require("../../models/post.model"));
+const topic_model_1 = __importDefault(require("../../models/topic.model"));
+const search_1 = __importDefault(require("../../helper/search"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const posts = yield post_model_1.default.find({
+        const find = {
             deleted: false,
-        });
+        };
+        if (req.query.status) {
+            find.status = req.query.status.toString();
+        }
+        const slugTopic = (_a = req.query.slugTopic) === null || _a === void 0 ? void 0 : _a.toString();
+        if (slugTopic) {
+            const topic = yield topic_model_1.default.findOne({
+                slug: slugTopic,
+                deleted: false,
+            });
+            if (topic) {
+                find.topic_id = topic._id;
+            }
+        }
+        let sort = {};
+        if (req.query.sortKey && req.query.sortValue) {
+            const sortKey = req.query.sortKey.toString();
+            sort[sortKey] = req.query.sortValue;
+        }
+        const objectSearch = (0, search_1.default)(req.query);
+        if (objectSearch.regex) {
+            find.title = objectSearch.regex;
+        }
+        const posts = yield post_model_1.default.find(find).sort(sort);
         res.json(posts);
     }
     catch (error) {

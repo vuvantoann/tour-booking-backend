@@ -1,12 +1,59 @@
 import { Request, Response } from 'express'
 import Post from '../../models/post.model'
+import mongoose from 'mongoose'
+import Topic from '../../models/topic.model'
+import searchHelper from '../../helper/search'
 
 //[GET]/api/v1/admin/posts
 export const index = async (req: Request, res: Response) => {
   try {
-    const posts = await Post.find({
+    interface Find {
+      deleted: boolean
+      status?: string
+      title?: RegExp
+      topic_id?: string | mongoose.Types.ObjectId
+    }
+
+    const find: Find = {
       deleted: false,
-    })
+    }
+    //Tính năng lọc theo trạng thái
+    if (req.query.status) {
+      find.status = req.query.status.toString()
+    }
+    // kết thúc tính năng lọc theo trạng thái
+
+    // Tính năng lọc theo danh mục sản phẩm
+
+    const slugTopic = req.query.slugTopic?.toString()
+    if (slugTopic) {
+      const topic = await Topic.findOne({
+        slug: slugTopic,
+        deleted: false,
+      })
+      if (topic) {
+        find.topic_id = topic._id
+      }
+    }
+
+    // Kết thúc
+
+    // Tính sắp xếp theo tiêu chí
+    let sort = {}
+    if (req.query.sortKey && req.query.sortValue) {
+      const sortKey = req.query.sortKey.toString()
+      sort[sortKey] = req.query.sortValue
+    }
+    // kết thúc tính năng sắp xếp theo tiêu chí
+
+    // Tính năng tìm kiếm
+    const objectSearch = searchHelper(req.query)
+    if (objectSearch.regex) {
+      find.title = objectSearch.regex
+    }
+    // kết thúc Tính năng tìm kiếm
+
+    const posts = await Post.find(find).sort(sort)
     res.json(posts)
   } catch (error) {
     console.error(error)

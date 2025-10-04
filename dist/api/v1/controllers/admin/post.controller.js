@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.create = exports.detail = exports.index = void 0;
+exports.edit = exports.create = exports.detail = exports.index = void 0;
 const post_model_1 = __importDefault(require("../../models/post.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -47,19 +47,19 @@ const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.detail = detail;
 const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (!req.body.position || req.body.position === '') {
+        if (!req.body.position && req.body.position !== 0) {
             const countPost = yield post_model_1.default.countDocuments();
             req.body.position = countPost + 1;
         }
         else {
-            req.body.position = parseInt(req.body.position);
+            req.body.position = parseInt(req.body.position, 10);
         }
         const newPost = new post_model_1.default(req.body);
         const data = yield newPost.save();
         return res.json({
             code: 200,
             message: 'Tạo bài viết thành công!',
-            data: data,
+            data,
         });
     }
     catch (error) {
@@ -71,3 +71,29 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.create = create;
+const edit = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const id = req.params.id;
+        if (req.body.position !== undefined &&
+            req.body.position !== null &&
+            req.body.position !== '') {
+            req.body.position = Number(req.body.position);
+        }
+        else {
+            delete req.body.position;
+        }
+        yield post_model_1.default.updateOne({ _id: id }, { $set: req.body });
+        res.json({
+            code: 200,
+            message: 'Cập nhật Bài viết thành công',
+        });
+    }
+    catch (error) {
+        console.error('Lỗi edit post:', error);
+        return res.status(400).json({
+            code: 400,
+            message: 'Không tồn tại!',
+        });
+    }
+});
+exports.edit = edit;

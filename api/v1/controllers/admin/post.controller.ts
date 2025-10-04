@@ -14,7 +14,7 @@ export const index = async (req: Request, res: Response) => {
   }
 }
 
-//[GET]/api/v1/admin/posts/
+//[GET]/api/v1/admin/posts/detail/:id
 export const detail = async (req: Request, res: Response) => {
   try {
     const id = req.params.id
@@ -35,11 +35,12 @@ export const detail = async (req: Request, res: Response) => {
 // [POST]/api/v1/admin/posts/create
 export const create = async (req: Request, res: Response) => {
   try {
-    if (!req.body.position || req.body.position === '') {
+    // Nếu người dùng không nhập position (null, undefined, NaN, hoặc chuỗi rỗng)
+    if (!req.body.position && req.body.position !== 0) {
       const countPost = await Post.countDocuments()
       req.body.position = countPost + 1
     } else {
-      req.body.position = parseInt(req.body.position)
+      req.body.position = parseInt(req.body.position, 10)
     }
 
     const newPost = new Post(req.body)
@@ -48,13 +49,44 @@ export const create = async (req: Request, res: Response) => {
     return res.json({
       code: 200,
       message: 'Tạo bài viết thành công!',
-      data: data,
+      data,
     })
   } catch (error) {
     console.error('Lỗi khi tạo bài viết:', error)
     return res.status(400).json({
       code: 400,
       message: 'Có lỗi xảy ra!',
+    })
+  }
+}
+
+// [PATCH] /api/v1/admin/posts/:id
+export const edit = async (req: Request, res: Response) => {
+  try {
+    const id: string = req.params.id
+
+    // ép kiểu số cho field position
+    if (
+      req.body.position !== undefined &&
+      req.body.position !== null &&
+      req.body.position !== ''
+    ) {
+      req.body.position = Number(req.body.position)
+    } else {
+      delete req.body.position // nếu không nhập gì thì bỏ qua
+    }
+
+    await Post.updateOne({ _id: id }, { $set: req.body })
+
+    res.json({
+      code: 200,
+      message: 'Cập nhật Bài viết thành công',
+    })
+  } catch (error) {
+    console.error('Lỗi edit post:', error)
+    return res.status(400).json({
+      code: 400,
+      message: 'Không tồn tại!',
     })
   }
 }

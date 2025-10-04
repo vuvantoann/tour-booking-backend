@@ -19,4 +19,10 @@ router.post(
   controller.create
 )
 
+router.patch(
+  '/edit/:id',
+  upload.single('image'),
+  uploadToCloudinary,
+  controller.edit
+)
 export const categoryRoutes: Router = router

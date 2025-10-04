@@ -143,11 +143,14 @@ export const edit = async (req: MulterRequest, res: Response) => {
 
     // ép kiểu số cho các field numeric
     const numericFields = ['price', 'discount', 'stock', 'position']
-    numericFields.forEach((field) => {
-      if (req.body[field] !== undefined && req.body[field] !== '') {
-        req.body[field] = parseInt(req.body[field])
+    for (const field of numericFields) {
+      const value = req.body[field]
+      if (value !== undefined && value !== null && value !== '') {
+        req.body[field] = Number(value)
+      } else {
+        delete req.body[field] // tránh ghi đè field trong DB bằng null/NaN
       }
-    })
+    }
 
     await Tour.updateOne({ _id: id }, req.body)
 

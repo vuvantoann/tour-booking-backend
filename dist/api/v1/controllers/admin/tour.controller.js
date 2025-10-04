@@ -120,11 +120,15 @@ const edit = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.params.id;
         const numericFields = ['price', 'discount', 'stock', 'position'];
-        numericFields.forEach((field) => {
-            if (req.body[field] !== undefined && req.body[field] !== '') {
-                req.body[field] = parseInt(req.body[field]);
+        for (const field of numericFields) {
+            const value = req.body[field];
+            if (value !== undefined && value !== null && value !== '') {
+                req.body[field] = Number(value);
             }
-        });
+            else {
+                delete req.body[field];
+            }
+        }
         yield tour_model_1.default.updateOne({ _id: id }, req.body);
         res.json({
             code: 200,

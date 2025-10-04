@@ -70,3 +70,34 @@ export const create = async (req: Request, res: Response) => {
     })
   }
 }
+
+// [PATCH] /api/v1/admin/categories/:id
+export const edit = async (req: Request, res: Response) => {
+  try {
+    const id: string = req.params.id
+
+    // ép kiểu số cho field position
+    if (
+      req.body.position !== undefined &&
+      req.body.position !== null &&
+      req.body.position !== ''
+    ) {
+      req.body.position = Number(req.body.position)
+    } else {
+      delete req.body.position // nếu không nhập gì thì bỏ qua
+    }
+
+    await Category.updateOne({ _id: id }, { $set: req.body })
+
+    res.json({
+      code: 200,
+      message: 'Cập nhật category thành công',
+    })
+  } catch (error) {
+    console.error('Lỗi edit category:', error)
+    return res.status(400).json({
+      code: 400,
+      message: 'Không tồn tại!',
+    })
+  }
+}

@@ -48,9 +48,10 @@ database.connect();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
 app.use((0, cors_1.default)({
-    origin: process.env.CLIENT_URL,
+    origin: [process.env.CLIENT_URL, 'http://localhost:5173'].filter(Boolean),
     credentials: true,
 }));
+console.log('✅ Allowed origin:', process.env.CLIENT_URL);
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
 (0, index_route_1.default)(app);

@@ -16,10 +16,11 @@ const port: string | number = process.env.PORT || 3000
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: [process.env.CLIENT_URL, 'http://localhost:5173'].filter(Boolean),
     credentials: true,
   })
 )
+console.log('✅ Allowed origin:', process.env.CLIENT_URL)
 
 app.use(express.json())
 app.use(cookieParser()) // để đọc cookie ở BE

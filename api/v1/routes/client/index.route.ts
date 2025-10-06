@@ -4,6 +4,7 @@ import { postRoutes } from './post.route'
 import { categoryRoutes } from './category.route'
 import { topicRoutes } from './topic.route'
 import { searchRoutes } from './search.route'
+import { membershipRoutes } from './membership.route'
 
 const routesV1 = (app: Express) => {
   const version = '/api/v1'
@@ -17,6 +18,8 @@ const routesV1 = (app: Express) => {
   app.use(version + '/topics', topicRoutes)
 
   app.use(version + '/search', searchRoutes)
+
+  app.use(version + '/membership', membershipRoutes)
 }
 
 export default routesV1

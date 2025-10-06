@@ -15,18 +15,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.detail = exports.index = void 0;
 const category_model_1 = __importDefault(require("../../models/category.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const categories = yield category_model_1.default.find({
-        deleted: false,
-    });
-    res.json(categories);
+    try {
+        const categories = yield category_model_1.default.find({ deleted: false });
+        res.json(categories);
+    }
+    catch (error) {
+        console.error('Lỗi khi lấy danh sách categories:', error);
+        res.status(500).json({ error: 'Không lấy được danh sách categories' });
+    }
 });
 exports.index = index;
 const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const category = yield category_model_1.default.findOne({
-        _id: id,
-        deleted: false,
-    });
-    res.json(category);
+    try {
+        const id = req.params.id;
+        if (!id) {
+            return res.status(400).json({ error: 'ID không hợp lệ' });
+        }
+        const category = yield category_model_1.default.findOne({ _id: id, deleted: false });
+        if (!category) {
+            return res.status(404).json({ error: 'Category không tồn tại' });
+        }
+        res.json(category);
+    }
+    catch (error) {
+        console.error('Lỗi khi lấy chi tiết category:', error);
+        res.status(500).json({ error: 'Không lấy được chi tiết category' });
+    }
 });
 exports.detail = detail;

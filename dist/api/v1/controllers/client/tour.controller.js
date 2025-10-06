@@ -16,10 +16,14 @@ exports.detail = exports.ToursByCategory = exports.index = void 0;
 const tour_model_1 = __importDefault(require("../../models/tour.model"));
 const category_model_1 = __importDefault(require("../../models/category.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const tours = yield tour_model_1.default.find({
-        deleted: false,
-    });
-    res.json(tours);
+    try {
+        const tours = yield tour_model_1.default.find({ deleted: false });
+        res.json(tours);
+    }
+    catch (error) {
+        console.error('Lỗi khi lấy danh sách tours:', error);
+        res.status(500).json({ error: 'Không lấy được danh sách tours' });
+    }
 });
 exports.index = index;
 const ToursByCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

@@ -2,12 +2,15 @@ import { Request, Response } from 'express'
 import Tour from '../../models/tour.model'
 import Category from '../../models/category.model'
 
-//[GET]/api/v1/tours
+// [GET] /api/v1/tours
 export const index = async (req: Request, res: Response) => {
-  const tours = await Tour.find({
-    deleted: false,
-  })
-  res.json(tours)
+  try {
+    const tours = await Tour.find({ deleted: false })
+    res.json(tours)
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách tours:', error)
+    res.status(500).json({ error: 'Không lấy được danh sách tours' })
+  }
 }
 
 //[GET]/api/v1/tours/:slugCategory
